@@ -103,7 +103,7 @@ func main() {
       Last: classes.Ticker.Last,
       Vol: classes.Ticker.Vol,
       }
-     col := db.C("ticker")
+     col := db.C("okcoin_btc_cny")
      fmt.Printf("%s",classes.Date)
      err = col.Insert(data)
      if err != nil {
