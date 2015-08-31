@@ -2,12 +2,7 @@
 package main
 
 import (
-     "encoding/json"
      "fmt"
-     "io/ioutil"
-     "log"
-     "net/http"
-     "net/url"
      "time"
      mgo "gopkg.in/mgo.v2"
      "gopkg.in/mgo.v2/bson"
@@ -45,7 +40,7 @@ func (class Class) String() string {
 
 func main() {
 
-     session, err := mgo.Dial("localhost")
+     session, err := mgo.Dial("172.31.42.49")
      if err != nil {
       panic(err)
       }
@@ -55,16 +50,13 @@ func main() {
 
      db := session.DB("test")
 
-     col := db.C("okcoin_btc_cny")
-     fmt.Printf("%s",classes.Date)
+     for {
 
      p := new(Data)
      query := db.C("ticker").Find(bson.M{})
      query.One(&p)
      fmt.Printf("%+v\n",p)
 
-
-     fmt.Printf(" : %s \n", classes)
 
      time.Sleep(1 * time.Second)
      }

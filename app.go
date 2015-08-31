@@ -44,7 +44,7 @@ func (class Class) String() string {
 
 func main() {
 
-     session, err := mgo.Dial("localhost")
+     session, err := mgo.Dial("172.31.42.49")
      if err != nil {
       panic(err)
       }
@@ -111,7 +111,7 @@ func main() {
       }
 
      p := new(Data)
-     query := db.C("ticker").Find(bson.M{})
+     query := db.C("okcoin_btc_cny").Find(bson.M{})
      query.One(&p)
      fmt.Printf("%+v\n",p)
 
