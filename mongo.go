@@ -53,7 +53,7 @@ func main() {
      for {
 
      p := new(Data)
-     query := db.C("ticker").Find(bson.M{})
+     query := db.C("okcoin_btc_cny").Find(bson.M{})
      query.One(&p)
      fmt.Printf("%+v\n",p)
 
