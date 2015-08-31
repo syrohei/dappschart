@@ -104,21 +104,17 @@ func main() {
       Vol: classes.Ticker.Vol,
       }
      col := db.C("okcoin_btc_cny")
-     fmt.Printf("%s",classes.Date)
      err = col.Insert(data)
      if err != nil {
       panic(err)
       }
 
      p := new(Data)
-     query := db.C("okcoin_btc_cny").Find(bson.M{})
+     query := db.C("okcoin_btc_cny").Find(bson.M{"date": classes.Date})
      query.One(&p)
      fmt.Printf("%+v\n",p)
 
-
-     fmt.Printf(" : %s \n", classes)
-
-     time.Sleep(1 * time.Second)
+     time.Sleep(2 * time.Second)
      }
 
 }
