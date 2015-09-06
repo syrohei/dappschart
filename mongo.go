@@ -52,13 +52,16 @@ func main() {
 
      for {
 
-     p := new(Data)
-     query := db.C("okcoin_btc_cny").Find(bson.M{})
-     query.One(&p)
+     var p []Data
+     query := db.C("okcoin_btc_cny")
+     err = query.Find(bson.M{}).Limit(1).Sort("-date").All(&p)
+     if err != nil {
+       panic(err)
+       }
      fmt.Printf("%+v\n",p)
 
 
-     time.Sleep(1 * time.Second)
+     time.Sleep(10 * time.Second)
      }
 
 }
