@@ -2,6 +2,7 @@ package main
 
 import (
      "encoding/json"
+     "strconv"
      "fmt"
      "io/ioutil"
      "log"
@@ -32,6 +33,7 @@ type Data struct {
   Low string `bson:"low"`
   Last string `bson:"last"`
   Vol string `bson:"vol"`
+  Ema1 string `bson:"ema1"`
   }
 
 
@@ -44,7 +46,8 @@ func (class Class) String() string {
 
 func main() {
 
-     session, err := mgo.Dial("172.31.42.49")
+     //session, err := mgo.Dial("172.31.42.49")
+     session, err := mgo.Dial("localhost")
      if err != nil {
       panic(err)
       }
@@ -87,13 +90,27 @@ func main() {
      }
 
      //fmt.Println(string(body))
-
      var classes Class 
      err = json.Unmarshal(body, &classes)
      if err != nil {
           log.Fatal(err)
      }
 
+     var lastData []Data
+     query := db.C("okcoin_btc_cny")
+     err = query.Find(bson.M{}).Limit(1).Sort("-date").All(&lastData)
+     if err != nil {
+
+     } else { 
+
+     lastema1, _:=strconv.ParseFloat(lastData[0].Ema1,64)
+     currentIndex, _:=strconv.ParseFloat(classes.Ticker.Last,64)
+     var ema = lastema1*(1.0-2.0/13.0)+currentIndex*2.0/13.0
+     fmt.Println(lastema1)
+     fmt.Println(currentIndex)
+     fmt.Println(ema)
+     
+     
      data := &Data {
       Date: classes.Date,
       Buy: classes.Ticker.Buy,
@@ -102,19 +119,20 @@ func main() {
       Low: classes.Ticker.Low,
       Last: classes.Ticker.Last,
       Vol: classes.Ticker.Vol,
+      Ema1: strconv.FormatFloat(ema, 'f', 6,64),
       }
-     col := db.C("okcoin_btc_cny")
-     err = col.Insert(data)
+     err = query.Insert(data)
      if err != nil {
       panic(err)
       }
 
      p := new(Data)
-     query := db.C("okcoin_btc_cny").Find(bson.M{"date": classes.Date})
-     query.One(&p)
+     current := db.C("okcoin_btc_cny").Find(bson.M{"date": classes.Date})
+     current.One(&p)
      fmt.Printf("%+v\n",p)
 
      time.Sleep(10 * time.Second)
      }
+  }
 
 }
