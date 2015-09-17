@@ -60,7 +60,7 @@ func Sum(a *[]Data) (sumEma1 float64, sumDiff float64) {
 
 func main() {
 
-     //session, err := mgo.Dial("172.31.42.49")
+     //session, err := mgo.Dial("172.31.8.24")
      session, err := mgo.Dial("localhost")
      if err != nil {
       panic(err)
