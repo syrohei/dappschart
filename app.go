@@ -34,6 +34,8 @@ type Data struct {
   Last string `bson:"last"`
   Vol string `bson:"vol"`
   Ema1 string `bson:"ema1"`
+  Diff string `bson:"diff"`
+  Posi string `bson:"posi"`
   }
 
 
@@ -41,6 +43,18 @@ type Data struct {
 func (class Class) String() string {
   return fmt.Sprintf("Id=%d Name=%d", class.Date, class.Ticker.Buy)
 
+}
+
+func Sum(a *[]Data) (sumEma1 float64, sumDiff float64) {
+   for _, v := range *a {
+
+      Ema1, _:=strconv.ParseFloat(v.Last,64)
+      Diff, _:=strconv.ParseFloat(v.Diff,64)
+      sumEma1 += Ema1
+      sumDiff += Diff
+
+   }
+   return sumEma1, sumDiff
 }
 
 
@@ -98,17 +112,17 @@ func main() {
 
      var lastData []Data
      query := db.C("okcoin_btc_cny")
-     err = query.Find(bson.M{}).Limit(1).Sort("-date").All(&lastData)
+     err = query.Find(bson.M{}).Limit(10).Sort("-date").All(&lastData)
      if err != nil {
 
      } else { 
 
+     sumEma1, sumDiff := Sum(&lastData)
+     fmt.Println(sumEma1/10, sumDiff/10)
+
      lastema1, _:=strconv.ParseFloat(lastData[0].Ema1,64)
      currentIndex, _:=strconv.ParseFloat(classes.Ticker.Last,64)
      var ema = lastema1*(1.0-2.0/13.0)+currentIndex*2.0/13.0
-     fmt.Println(lastema1)
-     fmt.Println(currentIndex)
-     fmt.Println(ema)
      
      
      data := &Data {
@@ -120,6 +134,8 @@ func main() {
       Last: classes.Ticker.Last,
       Vol: classes.Ticker.Vol,
       Ema1: strconv.FormatFloat(ema, 'f', 6,64),
+      Diff: strconv.FormatFloat(ema-lastema1, 'f', 6,64),
+      Posi: strconv.FormatFloat(currentIndex-ema, 'f', 6,64),
       }
      err = query.Insert(data)
      if err != nil {
@@ -131,7 +147,7 @@ func main() {
      current.One(&p)
      fmt.Printf("%+v\n",p)
 
-     time.Sleep(10 * time.Second)
+     time.Sleep(5 * time.Second)
      }
   }
 
