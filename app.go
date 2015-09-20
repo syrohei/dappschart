@@ -34,8 +34,10 @@ type Data struct {
   Last string `bson:"last"`
   Vol string `bson:"vol"`
   Ema1 string `bson:"ema1"`
+  Ema1Ave string `bson:"ema1ave"`
+  DiffAve string `bson:"diffave"`
   Diff string `bson:"diff"`
-  Posi string `bson:"posi"`
+  Up string `bson:"up"`
   }
 
 
@@ -45,16 +47,15 @@ func (class Class) String() string {
 
 }
 
-func Sum(a *[]Data) (sumEma1 float64, sumDiff float64) {
+func Sum(a *[]Data) (sumEma1 float64) {
    for _, v := range *a {
 
-      Ema1, _:=strconv.ParseFloat(v.Last,64)
-      Diff, _:=strconv.ParseFloat(v.Diff,64)
+      Ema1, _:=strconv.ParseFloat(v.Ema1,64)
       sumEma1 += Ema1
-      sumDiff += Diff
 
    }
-   return sumEma1, sumDiff
+
+   return sumEma1 
 }
 
 
@@ -110,20 +111,37 @@ func main() {
           log.Fatal(err)
      }
 
+     value := 140
+
      var lastData []Data
      query := db.C("okcoin_btc_cny")
-     err = query.Find(bson.M{}).Limit(10).Sort("-date").All(&lastData)
+     err = query.Find(bson.M{}).Limit(value-1).Sort("-date").All(&lastData)
      if err != nil {
 
      } else { 
 
-     sumEma1, sumDiff := Sum(&lastData)
-     fmt.Println(sumEma1/10, sumDiff/10)
+     sumEma1 := Sum(&lastData)
 
      lastema1, _:=strconv.ParseFloat(lastData[0].Ema1,64)
      currentIndex, _:=strconv.ParseFloat(classes.Ticker.Last,64)
      var ema = lastema1*(1.0-2.0/13.0)+currentIndex*2.0/13.0
+     ema1ave := (ema + sumEma1)/float64(value)
+     currentdiff, _:=strconv.ParseFloat(lastData[0].Ema1,64)
+     currentdiff =  ema - ema1ave 
+     lastdiff, _:= strconv.ParseFloat(lastData[0].DiffAve,64)
+     //lastdiff = lastdiff - currentdiff
+     upcount := "null"
      
+     if currentdiff  >0.0 {
+       upcount = "UP"
+       if lastdiff < 0.0{
+         upcount = "UPoverZERO"
+       }
+     } else { upcount = "DOWN" 
+       if lastdiff > 0.0000000{
+         upcount = "DOWNoverZERO"
+       }
+     }
      
      data := &Data {
       Date: classes.Date,
@@ -134,8 +152,9 @@ func main() {
       Last: classes.Ticker.Last,
       Vol: classes.Ticker.Vol,
       Ema1: strconv.FormatFloat(ema, 'f', 6,64),
-      Diff: strconv.FormatFloat(ema-lastema1, 'f', 6,64),
-      Posi: strconv.FormatFloat(currentIndex-ema, 'f', 6,64),
+      Ema1Ave: strconv.FormatFloat(ema1ave, 'f', 6,64),
+      DiffAve: strconv.FormatFloat(currentdiff, 'f', 6,64),
+      Up: upcount,
       }
      err = query.Insert(data)
      if err != nil {
@@ -147,7 +166,7 @@ func main() {
      current.One(&p)
      fmt.Printf("%+v\n",p)
 
-     time.Sleep(5 * time.Second)
+     time.Sleep(10 * time.Second)
      }
   }
 
