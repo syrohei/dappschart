@@ -5,6 +5,7 @@ import (
      "fmt"
      "log"
      "time"
+     "strconv"
      "net/smtp"
      mgo "gopkg.in/mgo.v2"
      "gopkg.in/mgo.v2/bson"
@@ -25,6 +26,20 @@ type Data struct {
   Up string `bson:"up"`
   }
 
+func SumDis(a *[]Data) (sumUp float64) {
+
+   for _, v := range *a {
+      Up := v.Up
+      if Up == "DOWNoverZERO" || Up == "UPoverZERO" {
+        return sumUp
+        
+        }
+      sumUp += 1.0
+   }
+   return sumUp 
+}
+
+
 
 func main() {
 
@@ -40,16 +55,21 @@ func main() {
      db := session.DB("test")
 
      
-     for {
+     for { 
 
      var p []Data
 
      query := db.C("okcoin_btc_cny")
-     err = query.Find(bson.M{}).Limit(1).Sort("-date").All(&p)
+     err = query.Find(bson.M{}).Limit(100).Sort("-date").All(&p)
      if err != nil {
         log.Fatal(err)
         }
-     fmt.Printf("%+v\n",p)
+     fmt.Printf("%+v\n",p[0])
+     
+     x := p[2:]
+     t := time.Now().Format(time.RFC850)
+     sumUp := SumDis(&x)
+     count := strconv.FormatFloat(sumUp,'f',6, 64)
 
        auth := smtp.PlainAuth(
            "",
@@ -65,7 +85,7 @@ func main() {
                subject := "BTC/USD rate Will be Increase!"
                rate := p[0].Last
                msg := "18bsT6FEXbfgT18Ask3gV2BTEq6k8GeUdx"   
-               body := "Subject:" + subject + "\n" + msg + "\n" + rate
+               body := "Subject:" + subject + "\n" + msg + "\n" + rate + "\n" + count + "ago\n" + t
                err := smtp.SendMail(
                    "smtp.gmail.com:587",
                    auth,
@@ -82,7 +102,7 @@ func main() {
                subject := "BTC/USD rate Will be Decrease!"
                rate := p[0].Last
                msg := "1JTF1QpJ6yNhtF6fRUEM14x6AxBL8F9TyE"   
-               body := "Subject:" + subject + "\n" + msg + "\n" + rate
+               body := "Subject:" + subject + "\n" + msg + "\n" + rate +"\n" + count + "ago\n" + t
                err := smtp.SendMail(
                    "smtp.gmail.com:587",
                    auth,
