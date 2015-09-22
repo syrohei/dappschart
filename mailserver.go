@@ -43,8 +43,8 @@ func SumDis(a *[]Data) (sumUp float64) {
 
 func main() {
 
-     //session, err := mgo.Dial("172.31.8.24")
-     session, err := mgo.Dial("localhost")
+     session, err := mgo.Dial("172.31.8.24")
+     //session, err := mgo.Dial("localhost")
      if err != nil {
       panic(err)
       }
@@ -60,7 +60,7 @@ func main() {
      var p []Data
 
      query := db.C("okcoin_btc_cny")
-     err = query.Find(bson.M{}).Limit(100).Sort("-date").All(&p)
+     err = query.Find(bson.M{}).Limit(400).Sort("-date").All(&p)
      if err != nil {
         log.Fatal(err)
         }
@@ -70,6 +70,7 @@ func main() {
      t := time.Now().Format(time.RFC850)
      sumUp := SumDis(&x)
      count := strconv.FormatFloat(sumUp,'f',6, 64)
+     
 
        auth := smtp.PlainAuth(
            "",
@@ -80,12 +81,15 @@ func main() {
        // Connect to the server, authenticate, set the sender and recipient,
        // and send the email all in one step.
 
-     if p[0].Up == "UPoverZERO" {
+     if p[0].Up == "UPoverZERO" && sumUp > 12.0{
 
+               won ,_:= strconv.ParseFloat(x[int(sumUp -12.0)].Last,64) 
+	       wonlast, _ := strconv.ParseFloat(x[int(sumUp)].Last,64) 
+	       wons := strconv.FormatFloat(won - wonlast, 'f', 6,64)
                subject := "BTC/USD rate Will be Increase!"
                rate := p[0].Last
                msg := "18bsT6FEXbfgT18Ask3gV2BTEq6k8GeUdx"   
-               body := "Subject:" + subject + "\n" + msg + "\n" + rate + "\n" + count + "ago\n" + t
+               body := "Subject:" + subject + "\n" + msg + "\n" + rate + "\n" + count + "ago\n" +  wons + "\n" + t
                err := smtp.SendMail(
                    "smtp.gmail.com:587",
                    auth,
@@ -97,12 +101,14 @@ func main() {
                  log.Fatal(err)
                }
      }
-     if p[0].Up == "DOWNoverZERO" {
-
+     if p[0].Up == "DOWNoverZERO" && sumUp > 12.0{
+	       won ,_:= strconv.ParseFloat(x[int(sumUp -12.0)].Last,64) 
+	       wonlast, _ := strconv.ParseFloat(x[int(sumUp)].Last,64) 
+	       wons := strconv.FormatFloat(won - wonlast, 'f', 6,64)
                subject := "BTC/USD rate Will be Decrease!"
                rate := p[0].Last
                msg := "1JTF1QpJ6yNhtF6fRUEM14x6AxBL8F9TyE"   
-               body := "Subject:" + subject + "\n" + msg + "\n" + rate +"\n" + count + "ago\n" + t
+               body := "Subject:" + subject + "\n" + msg + "\n" + rate +"\n" + count + "ago\n" + wons + "\n" + t
                err := smtp.SendMail(
                    "smtp.gmail.com:587",
                    auth,
