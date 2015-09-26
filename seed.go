@@ -109,6 +109,11 @@ func main() {
      if err != nil {
       panic(err)
       }
+     err = db.C("okcoin_btc_cny5").Insert(data)
+     if err != nil {
+      panic(err)
+      }
+
 
      p := new(Data)
      current := db.C("okcoin_btc_cny").Find(bson.M{"date": classes.Date})

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 
-kill $(pidof appusd)
+kill `pidof appusd`
 
-kill $(pidof app)
+kill `pidof mailserver`
 

@@ -57,6 +57,19 @@ func Sum(a *[]Data) (sumEma1 float64) {
 
    return sumEma1 
 }
+func isCount(a *[]Data) (count string) {
+   for _, v := range *a {
+
+      Up := v.Up
+      if Up == "DOWNoverZERO" || Up == "UPoverZERO" || Up == "Mount" {
+        count = "Mount" 
+      }
+
+   }
+
+   return count 
+}
+
 
 
 func main() {
@@ -111,7 +124,7 @@ func main() {
           log.Fatal(err)
      }
 
-     value := 140
+     value := 200
 
      var lastData []Data
      query := db.C("okcoin_btc_cny")
@@ -130,16 +143,24 @@ func main() {
      currentdiff =  ema - ema1ave 
      lastdiff, _:= strconv.ParseFloat(lastData[0].DiffAve,64)
      //lastdiff = lastdiff - currentdiff
-     upcount := "null"
-     
+     countbuff := lastData[:20]
+     upcount := isCount(&countbuff)
+
      if currentdiff  >0.0 {
-       upcount = "UP"
        if lastdiff < 0.0{
+         if upcount != "Mount" {
          upcount = "UPoverZERO"
+         }
+       } else {
+       upcount = "UP"
        }
-     } else { upcount = "DOWN" 
+     } else { 
        if lastdiff > 0.0000000{
+         if upcount != "Mount" {
          upcount = "DOWNoverZERO"
+ 	 }
+       } else {
+	 upcount = "DOWN" 
        }
      }
      
