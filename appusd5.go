@@ -38,6 +38,7 @@ type Data struct {
   DiffAve string `bson:"diffave"`
   Diff string `bson:"diff"`
   Up string `bson:"up"`
+  Time string `bson:"time"`
   }
 
 
@@ -74,7 +75,7 @@ func isCount(a *[]Data) (count string) {
 
 func main() {
 
-     session, err := mgo.Dial("172.31.8.24")
+     session, err := mgo.Dial("172.31.34.212")
      //session, err := mgo.Dial("localhost")
      if err != nil {
       panic(err)
@@ -124,7 +125,7 @@ func main() {
           log.Fatal(err)
      }
 
-     value := 25
+     value := 18
 
      var lastData []Data
      query := db.C("okcoin_btc_cny5")
@@ -143,7 +144,7 @@ func main() {
      currentdiff =  ema - ema1ave 
      lastdiff, _:= strconv.ParseFloat(lastData[0].DiffAve,64)
      //lastdiff = lastdiff - currentdiff
-     countbuff := lastData[:20]
+     countbuff := lastData[2:]
      upcount := isCount(&countbuff)
 
      if currentdiff  >0.0 {
@@ -163,6 +164,7 @@ func main() {
 	 upcount = "DOWN" 
        }
      }
+
      
      data := &Data {
       Date: classes.Date,
@@ -176,6 +178,7 @@ func main() {
       Ema1Ave: strconv.FormatFloat(ema1ave, 'f', 6,64),
       DiffAve: strconv.FormatFloat(currentdiff, 'f', 6,64),
       Up: upcount,
+      Time: time.Now().UTC().In(time.FixedZone("Asia/Tokyo", 9*60*60)).Format(time.RFC850),
       }
      err = query.Insert(data)
      if err != nil {

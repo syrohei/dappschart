@@ -43,7 +43,7 @@ func SumDis(a *[]Data) (sumUp float64) {
 
 func main() {
 
-     session, err := mgo.Dial("172.31.8.24")
+     session, err := mgo.Dial("172.31.34.212")
      //session, err := mgo.Dial("localhost")
      if err != nil {
       panic(err)

@@ -46,7 +46,7 @@ func (class Class) String() string {
 
 func main() {
 
-     session, err := mgo.Dial("172.31.8.24")
+     session, err := mgo.Dial("172.31.34.212")
      //session, err := mgo.Dial("localhost")
      if err != nil {
       panic(err)
@@ -59,7 +59,7 @@ func main() {
 
 
      
-     target := "https://www.okcoin.cn/api/v1/ticker.do"
+     target := "https://www.okcoin.com/api/v1/ticker.do"
 
      client := &http.Client{}
 

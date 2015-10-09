@@ -38,6 +38,7 @@ type Data struct {
   DiffAve string `bson:"diffave"`
   Diff string `bson:"diff"`
   Up string `bson:"up"`
+  Time string `bson:"time"`
   }
 
 
@@ -74,7 +75,7 @@ func isCount(a *[]Data) (count string) {
 
 func main() {
 
-     session, err := mgo.Dial("172.31.8.24")
+     session, err := mgo.Dial("172.31.34.212")
      //session, err := mgo.Dial("localhost")
      if err != nil {
       panic(err)
@@ -176,6 +177,7 @@ func main() {
       Ema1Ave: strconv.FormatFloat(ema1ave, 'f', 6,64),
       DiffAve: strconv.FormatFloat(currentdiff, 'f', 6,64),
       Up: upcount,
+      Time: time.Now().UTC().In(time.FixedZone("Asia/Tokyo", 9*60*60)).Format(time.RFC850),
       }
      err = query.Insert(data)
      if err != nil {
